@@ -36,11 +36,13 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
     public function postAutoloadDump($object = null)
     {
         $data = [];
-        foreach (InstalledVersions::getInstalledPackages() as $package) {
+        $data['__root__'] = InstalledVersions::getInstalledPath("__root__");
+        foreach (InstalledVersions::getInstalledPackagesByType('spsostrov-runtime') as $package) {
             $installPath = InstalledVersions::getInstallPath($package);
             $data[$package] = $this->canonizePath($installPath);
         }
         var_dump($data);
+        $this->io->writeError(["Cannot determine relative paths of packages, spsostrov/runtime package will not load its plugins"]);
     }
 
     private function canonizePath($path)
