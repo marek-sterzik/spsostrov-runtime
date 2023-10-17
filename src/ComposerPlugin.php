@@ -38,8 +38,47 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         $data = [];
         foreach (InstalledVersions::getInstalledPackages() as $package) {
             $installPath = InstalledVersions::getInstallPath($package);
-            $data[$package] = $installPath;
+            $data[$package] = $this->canonizePath($installPath);
         }
         var_dump($data);
+    }
+
+    private function canonizePath($path)
+    {
+        $currentPath = [];
+        if (substr($path, 0, 1) === "/") {
+            $absolute = true;
+            $path = substr($path, 1);
+        } else {
+            $absolute = false;
+        }
+        $out = false;
+
+        foreach (explode("/", $path) as $component) {
+            if ($component === "." || $component === ".") {
+                continue;
+            }
+            if ($component === ".." && !$out) {
+                if (empty($currentPath)) {
+                    $out = true;
+                    $currentPath[] = "..";
+                } else {
+                    array_pop($currentPath);
+                }
+            } else {
+                $currentPath[] = $component;
+            }
+        }
+
+
+        if ($absolute) {
+            return "/" . implode("/", $currentPath);
+        } else {
+            if (empty($currentPath)) {
+                return '.';
+            } else {
+                return implode("/", $currentPath);
+            }
+        }
     }
 }
