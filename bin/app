@@ -1,7 +1,15 @@
 #!/usr/bin/env php
 <?php
 
-var_dump($_composer_autoload_path ?? null);
-include ($_composer_autoload_path ?? __DIR__) . '/../vendor/autoload.php';
+use SPSOstrov\Runtime\RuntimeConfig;
+
+if (!isset($_composer_autoload_path)) {
+    fprintf(STDERR, "Error: Cannot run app directly, use only as a dependency.\n");
+    exit(1);
+}
+include $_composer_autoload_path;
+$rootDir = dirname($_composer_autoload_path, 2);
+$config = (new RuntimeConfig($rootDir))->get();
 
 echo "APP!\n";
+var_dump($config);
