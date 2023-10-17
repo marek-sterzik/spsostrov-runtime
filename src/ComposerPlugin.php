@@ -129,7 +129,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         if (!isset($content['extra']['spsostrov-runtime'])) {
             return [];
         }
-        $config = $content['extra']['spsostrov-runtime']
+        $config = $content['extra']['spsostrov-runtime'];
         if (!$this->validateExtraConfig($config)) {
             $this->io->writeError([
                     sprintf(
