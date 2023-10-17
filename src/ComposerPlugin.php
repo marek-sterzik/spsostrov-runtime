@@ -35,7 +35,11 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
 
     public function postAutoloadDump($object = null)
     {
-        $data = InstalledVersions::getInstalledPackages();
+        $data = [];
+        foreach (InstalledVersions::getInstalledPackages() as $package) {
+            $installPath = InstalledVersions::getInstallPath($package);
+            $data[$package] = $installPath;
+        }
         var_dump($data);
     }
 }
