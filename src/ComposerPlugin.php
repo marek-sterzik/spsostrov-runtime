@@ -14,4 +14,12 @@ class ComposerPlugin implements PluginInterface
         //$installer = new TemplateInstaller($io, $composer);
         //$composer->getInstallationManager()->addInstaller($installer);
     }
+
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+    }
 }
