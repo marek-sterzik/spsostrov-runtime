@@ -55,7 +55,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         $out = false;
 
         foreach (explode("/", $path) as $component) {
-            if ($component === "." || $component === ".") {
+            if ($component === "." || $component === "") {
                 continue;
             }
             if ($component === ".." && !$out) {
