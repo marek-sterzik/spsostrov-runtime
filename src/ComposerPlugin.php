@@ -36,18 +36,39 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
     public function postAutoloadDump($object = null)
     {
         $data = [];
-        $data['__root__'] = $this->canonizePath(InstalledVersions::getInstallPath("__root__"));
+        $rootDir = $this->canonizePath(InstalledVersions::getInstallPath("__root__"));
         foreach (InstalledVersions::getInstalledPackagesByType('spsostrov-runtime') as $package) {
             $installPath = InstalledVersions::getInstallPath($package);
-            $data[$package] = $this->canonizePath($installPath);
+            $path = $this->canonizePath($installPath);
+            $path = $this->stripPathPrefix($path, $rootDir);
+            if ($path !== null) {
+                $data[$package] = $path;
+            } else {
+                $this->io->writeError([
+                        sprintf(
+                            "<warning>Cannot determine relative path for spsstrov-runtime plugin %s</warning>",
+                            $package
+                        )
+                ]);
+            }
         }
-        var_dump($data);
-        $this->io->writeError(
-            [
-                "<error>Cannot determine relative paths of packages, ".
-                "spsostrov/runtime package will not load its plugins.</error>"
-            ]
-        );
+        var_dump($rootDir, $data);
+    }
+
+    private function stripPathPrefix($path, $prefix)
+    {
+        if ($path === $prefix) {
+            return '.';
+        }
+        if (substr($prefix, -1, 1) !== "/") {
+            $prefix = $prefix . "/";
+        }
+        $len = strlen($prefix);
+        if (substr($path, 0, $len) === $prefix) {
+            return substr($path, $len);
+        } else {
+            return null;
+        }
     }
 
     private function canonizePath($path)
