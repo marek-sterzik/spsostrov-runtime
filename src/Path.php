@@ -10,7 +10,7 @@ final class Path
         if ($path === '') {
             return null;
         }
-        $path = self::canonizePath($path);
+        $path = self::canonize($path);
         if ($path === '..' || substr($path, 0, 3) === '../') {
             return null;
         }
