@@ -1,4 +1,7 @@
 #!/usr/bin/env php
 <?php
 
+var_dump($_composer_autoload_path ?? null);
+include ($_composer_autoload_path ?? __DIR__) . '/../vendor/autoload.php';
+
 echo "APP!\n";

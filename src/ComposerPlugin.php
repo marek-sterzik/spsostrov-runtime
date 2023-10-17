@@ -37,7 +37,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
 
     public function postAutoloadDump($object = null)
     {
-        $runtimeConfig = [];
+        $runtimeConfig = ['scripts-dirs' => []];
         $rootDir = $this->canonizePath(InstalledVersions::getInstallPath("__root__"));
         $packages = array_merge(
             ['__root__'],
@@ -49,7 +49,10 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
             $path = $this->canonizePath($installPath);
             $path = $this->stripPathPrefix($path, $rootDir);
             if ($path !== null) {
-                $runtimeConfig[$package] = $this->loadDirsFromPackage($rootDir, $path, $package);
+                $packageConfig = $this->loadDirsFromPackage($rootDir, $path, $package);
+                if ($packageConfig['scripts-dir'] !== null) {
+                    $runtimeConfig['scripts-dirs'][] = $packageConfig['scripts-dir']
+                }
             } else {
                 $this->io->writeError([
                         sprintf(
@@ -59,7 +62,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
                 ]);
             }
         }
-        var_dump($rootDir, $runtimeConfig);
+        (new RuntimeConfig($rootDir))->set($runtimeConfig);
     }
 
     private function loadDirsFromPackage($rootDir, $packageDir, $package)
@@ -79,6 +82,10 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
                             $package
                         )
                 ]);
+            } else {
+                if (!is_dir($rootDir . "/" . $config['scripts-dir'])) {
+                    $config['scripts-dir'] = null;
+                }
             }
         }
         return $config;
