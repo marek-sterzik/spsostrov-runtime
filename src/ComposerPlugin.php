@@ -36,7 +36,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
     public function postAutoloadDump($object = null)
     {
         $data = [];
-        $data['__root__'] = InstalledVersions::getInstalledPath("__root__");
+        $data['__root__'] = InstalledVersions::getInstallPath("__root__");
         foreach (InstalledVersions::getInstalledPackagesByType('spsostrov-runtime') as $package) {
             $installPath = InstalledVersions::getInstallPath($package);
             $data[$package] = $this->canonizePath($installPath);
