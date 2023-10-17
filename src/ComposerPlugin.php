@@ -5,6 +5,7 @@ namespace SPSOstrov\Runtime;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
+use Composer\InstalledVersions;
 use Composer\EventDispatcher\EventSubscriberInterface;
 
 class ComposerPlugin implements PluginInterface, EventSubscriberInterface
@@ -34,7 +35,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
 
     public function postAutoloadDump($object = null)
     {
-        $rawData = \Composer\InstalledVersions::getAllRawData();
-        var_dump($rawData);
+        $data = InstalledVersions::getInstalledPackages();
+        var_dump($data);
     }
 }
