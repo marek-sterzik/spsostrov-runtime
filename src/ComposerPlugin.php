@@ -38,7 +38,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
     public function postAutoloadDump($object = null)
     {
         $runtimeConfig = ['scripts-dirs' => []];
-        $rootDir = $this->canonizePath(InstalledVersions::getInstallPath("__root__"));
+        $rootDir = Path::canonize(InstalledVersions::getInstallPath("__root__"));
         $packages = array_merge(
             ['__root__'],
             InstalledVersions::getInstalledPackagesByType('spsostrov-runtime'),
@@ -46,7 +46,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         );
         foreach ($packages as $package) {
             $installPath = InstalledVersions::getInstallPath($package);
-            $path = $this->canonizePath($installPath);
+            $path = Path::canonize($installPath);
             $path = $this->stripPathPrefix($path, $rootDir);
             if ($path !== null) {
                 $packageConfig = $this->loadDirsFromPackage($rootDir, $path, $package);
@@ -72,8 +72,8 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
             $config['scripts-dir'] = 'scripts';
         }
         if (is_string($config['scripts-dir'])) {
-            $config['scripts-dir'] = $this->canonizePath(
-                $packageDir . "/" . $this->canonizeRelativePath($config['scripts-dir'])
+            $config['scripts-dir'] = Path::canonize(
+                $packageDir . "/" . Path::canonizeRelative($config['scripts-dir'])
             );
             if ($config['scripts-dir'] === null) {
                 $this->io->writeError([
@@ -89,19 +89,6 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
             }
         }
         return $config;
-    }
-
-    private function canonizeRelativePath($path)
-    {
-        $path = ltrim($path, '/');
-        if ($path === '') {
-            return null;
-        }
-        $path = $this->canonizePath($path);
-        if ($path === '..' || substr($path, 0, 3) === '../') {
-            return null;
-        }
-        return $path;
     }
 
     private function loadExtraFromComposerJson($rootDir, $packageDir, $package)
@@ -174,45 +161,6 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
             return substr($path, $len);
         } else {
             return null;
-        }
-    }
-
-    private function canonizePath($path)
-    {
-        $currentPath = [];
-        if (substr($path, 0, 1) === "/") {
-            $absolute = true;
-            $path = substr($path, 1);
-        } else {
-            $absolute = false;
-        }
-        $out = false;
-
-        foreach (explode("/", $path) as $component) {
-            if ($component === "." || $component === "") {
-                continue;
-            }
-            if ($component === ".." && !$out) {
-                if (empty($currentPath)) {
-                    $out = true;
-                    $currentPath[] = "..";
-                } else {
-                    array_pop($currentPath);
-                }
-            } else {
-                $currentPath[] = $component;
-            }
-        }
-
-
-        if ($absolute) {
-            return "/" . implode("/", $currentPath);
-        } else {
-            if (empty($currentPath)) {
-                return '.';
-            } else {
-                return implode("/", $currentPath);
-            }
         }
     }
 }

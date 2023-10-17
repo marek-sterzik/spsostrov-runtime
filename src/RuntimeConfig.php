@@ -16,7 +16,7 @@ class RuntimeConfig
     public function set($config)
     {
         $config = json_encode($config);
-        file_put_contents($this->rootDir . "/" . self::CONFIG, $config);
+        file_put_contents($this->rootDir . "/" . self::CONFIG, $config."\n");
     }
 
     public function get()

@@ -2,13 +2,14 @@
 <?php
 
 use SPSOstrov\Runtime\RuntimeConfig;
+use SPSOstrov\Runtime\Path;
 
 if (!isset($_composer_autoload_path)) {
     fprintf(STDERR, "Error: Cannot run app directly, use only as a dependency.\n");
     exit(1);
 }
 include $_composer_autoload_path;
-$rootDir = dirname($_composer_autoload_path, 2);
+$rootDir = dirname(Path::canonize(dirname($_composer_autoload_path)));
 $config = (new RuntimeConfig($rootDir))->get();
 
 echo "APP!\n";
