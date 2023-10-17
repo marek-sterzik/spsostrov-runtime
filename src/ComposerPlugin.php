@@ -86,7 +86,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
 
     private function canonizeRelativePath($path)
     {
-        $path = ltrim('/', $path);
+        $path = ltrim($path, '/');
         if ($path === '') {
             return null;
         }
