@@ -35,6 +35,6 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
     public function postAutoloadDump($object = null)
     {
         echo "postAutoloadDump()\n";
-        var_dump($object);
+        echo get_class($object) . "\n";
     }
 }
