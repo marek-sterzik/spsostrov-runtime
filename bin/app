@@ -16,3 +16,4 @@ putenv("APP_BIN=" . Path::canonize($rootDir . "/vendor/bin/app"));
 
 echo "APP!\n";
 var_dump($config, $argv);
+system("env");
