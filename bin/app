@@ -11,6 +11,8 @@ if (!isset($_composer_autoload_path)) {
 include $_composer_autoload_path;
 $rootDir = dirname(Path::canonize(dirname($_composer_autoload_path)));
 $config = (new RuntimeConfig($rootDir))->get();
+putenv("APP_DIR=" . $rootDir);
+putenv("APP_BIN=" . Path::canonize($rootDir . "/vendor/bin/app"));
 
 echo "APP!\n";
-var_dump($config);
+var_dump($config, $argv);
