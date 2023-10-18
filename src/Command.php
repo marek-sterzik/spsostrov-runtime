@@ -24,21 +24,30 @@ final class Command
         foreach ($config['scripts-dirs'] ?? [] as $dir) {
             $names = self::listCommands($config['rootDir'], $dir);
             foreach ($names as $name) {
-                if (!isset($name)) {
-                    $command = selff::createCommand($config['rootDir'], $dir, $name);
-                    if ($command !== null) {
-                        $commands[$name] = $command;
-                    }
+                $command = self::createCommand($config['rootDir'], $dir, $name);
+                if ($command !== null) {
+                    $commands[$name] = $command;
                 }
             }
         }
+        ksort($commands);
         return $commands;
     }
 
 
     private static function listCommands($rootDir, $dir)
     {
-        return [];
+        $dd = opendir($rootDir . "/" . $dir);
+        $commands = [];
+        if ($dd) {
+            while (($file = readdir($dd)) !== false) {
+                if ($file !== '.' && $file !== '..' && !preg_match('/\.json$/', $file)) {
+                    $commands[] = $file;
+                }
+            }
+            closedir($dd);
+        }
+        return $commands;
     }
 
     private static function createCommand($rootDir, $dir, $name)
@@ -93,24 +102,29 @@ final class Command
         return $ret;
     }
 
-    public function getOpts()
+    public function getHelp()
     {
-        return $this->metadataTyped("opts", "is_string") ?? '';
+        return $this->metadataTyped("help", "is_string");
     }
 
-    public function getLongOpts()
+    public function getOptions()
     {
-        return array_values($this->metadataTyped("longOpts", function ($opts) {
-            if (!is_array($opts)) {
-                return false;
-            }
-            foreach ($opts as $opt) {
-                if (!is_string($opt)) {
-                    return false;
-                }
-            }
-            return true;
-        }) ?? []);
+        return $this->metadataTyped("options", "is_array") ?? [];
+    }
+
+    public function getOperands()
+    {
+        return $this->metadataTyped("operands", "is_array") ?? [];
+    }
+
+    public function getDescription()
+    {
+        return $this->metadataTyped("description", "is_string");
+    }
+
+    public function getPassArgsAsJson()
+    {
+        return $this->metadata('passArgsAsJson') ? true : false;
     }
 
     private function metadataTyped($key, $type)
