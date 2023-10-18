@@ -83,7 +83,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
                         )
                 ]);
             } else {
-                if (!is_dir($rootDir . "/" . $config['scripts-dir'])) {
+                if ($package !== '__root__' && !is_dir($rootDir . "/" . $config['scripts-dir'])) {
                     $config['scripts-dir'] = null;
                 }
             }
