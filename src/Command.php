@@ -37,7 +37,7 @@ final class Command
 
     private static function listCommands($rootDir, $dir)
     {
-        $dd = opendir($rootDir . "/" . $dir);
+        $dd = @opendir($rootDir . "/" . $dir);
         $commands = [];
         if ($dd) {
             while (($file = readdir($dd)) !== false) {
