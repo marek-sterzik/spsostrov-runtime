@@ -21,6 +21,15 @@ class RuntimeConfig
 
     public function get()
     {
+        $config = $this->loadFile();
+        if (!isset($config['scripts-dirs'])) {
+            $config['scripts-dirs'] = ['scripts'];
+        }
+        return $config;
+    }
+
+    private function loadFile()
+    {
         $config = @file_get_contents($this->rootDir . "/" . self::CONFIG);
         if (!is_string($config)) {
             return [];

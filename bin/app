@@ -1,100 +1,15 @@
 #!/usr/bin/env php
 <?php
 
-use SPSOstrov\Runtime\RuntimeConfig;
-use SPSOstrov\Runtime\Path;
-
-function printGlobalHelp($argv0)
-{
-    fprintf(STDERR, "usage: $argv0 [opts] command [command-opts]\n");
-}
-
-function printCommandHelp($argv0, $command)
-{
-    fprintf(STDERR, "Error: command help not yet implemented!\n");
-}
-
-function printVersionInfo()
-{
-    fprintf(STDERR, "Error: version info not yet available!\n");
-}
-
-function isInvokable($binary)
-{
-    return is_executable($binary);
-}
-
-function invokeCommand($binary, $args)
-{
-    $cmd = escapeshellcmd($binary);
-    foreach ($args as $arg) {
-        $cmd .= " " . escapeshellarg($arg);
-    }
-    system($cmd);
-}
-
-function locateCommandBin($command, $config, $rootDir)
-{
-    foreach ($config['scripts-dirs'] ?? [] as $dir) {
-        $bin = Path::canonize($rootDir . "/" . $dir . "/" . $command);
-        if (is_file($bin) && isInvokable($bin)) {
-            return $bin;
-        }
-    }
-    return null;
-}
+use SPSOstrov\Runtime\App;
 
 if (!isset($_composer_autoload_path)) {
-    fprintf(STDERR, "Error: Cannot run app directly, use only as a dependency.\n");
-    //exit(1);
+    fprintf(STDERR, "Warning: Running app in test mode.\n");
     $_composer_autoload_path = dirname(__DIR__) . "/vendor/autoload.php";
 }
+
 include $_composer_autoload_path;
-$rootDir = dirname(Path::canonize(dirname($_composer_autoload_path)));
-$config = (new RuntimeConfig($rootDir))->get();
 
-$opts = getopt("hv", ["help", "version"], $index);
-
-if ($opts === false) {
-    fprintf(STDERR, "Error: Cannot parse options.\n");
-    fprintf(STDERR, "For help use: %s --help\n", $argv[0]);
-    exit(1);
-}
-$argv0 = $argv[0];
-$args = array_slice($argv, $index);
-if (empty($args)) {
-    $command = null;
-} else {
-    $command = array_shift($args);
-}
-
-if (array_key_exists("h", $opts) || array_key_exists("help", $opts)) {
-    if ($command === null) {
-        printGlobalHelp($argv0);
-    } else {
-        printCommandHelp($argv0, $command);
-    }
-    exit(1);
-}
-
-if (array_key_exists("v", $opts) || array_key_exists("version", $opts)) {
-    printVersionInfo();
-    exit(1);
-}
-
-if ($command === null) {
-    printGlobalHelp($argv0);
-    exit(1);
-}
-
-$bin = locateCommandBin($command, $config, $rootDir);
-
-if ($bin === null) {
-    fprintf(STDERR, "Unknown command: %s\n", $command);
-    exit(1);
-}
-
-putenv("SPSO_APP_DIR=" . $rootDir);
-putenv("SPSO_APP_BIN=" . Path::canonize($rootDir . "/vendor/bin/app"));
-invokeCommand($bin, $args);
+$app = new App($_composer_autoload_path);
+exit($app->run($argv));
 
