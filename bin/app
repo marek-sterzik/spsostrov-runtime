@@ -46,8 +46,8 @@ function locateCommandBin($command, $config, $rootDir)
 
 if (!isset($_composer_autoload_path)) {
     fprintf(STDERR, "Error: Cannot run app directly, use only as a dependency.\n");
-    exit(1);
-    //$_composer_autoload_path = dirname(__DIR__) . "/vendor/autoload.php";
+    //exit(1);
+    $_composer_autoload_path = dirname(__DIR__) . "/vendor/autoload.php";
 }
 include $_composer_autoload_path;
 $rootDir = dirname(Path::canonize(dirname($_composer_autoload_path)));
