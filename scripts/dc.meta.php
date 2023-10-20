@@ -5,8 +5,9 @@ return [
     "help" => "run docker-compose in the context of the application",
     "options" => [
         'f|file: File',
+        '$args*'
     ],
-    "argumentResolver" => function($options) {
-        return [$options['file'] ?? '-'];
-    }
+    "args" => [
+        '$f?"-"', '@args'
+    ]
 ];
