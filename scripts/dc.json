@@ -3,10 +3,13 @@
     "help": "run docker-compose in the context of the application",
     "options": [
         "f|file: File",
+        "enable Enabled",
         "$args*"
     ],
     "args": [
+        "#f",
         "$f?\"-\"",
+        "$enable",
         "@args"
     ]
 }
