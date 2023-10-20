@@ -17,5 +17,6 @@
         "allow-plugins": {
             "spsostrov/app-console": true
         }
-    }
+    },
+    "minimum-stability": "dev"
 }
