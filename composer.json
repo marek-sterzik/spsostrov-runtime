@@ -13,10 +13,5 @@
     "require": {
         "spsostrov/app-console": "dev-master"
     },
-    "config": {
-        "allow-plugins": {
-            "spsostrov/app-console": true
-        }
-    },
     "minimum-stability": "dev"
 }
