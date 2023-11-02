@@ -1,9 +1,0 @@
-#!/usr/bin/env php
-<?php
-
-array_shift($argv);
-$cmd = "dc";
-foreach ($argv as $arg) {
-    $cmd .= " " . escapeshellarg($arg);
-}
-echo $cmd . "\n";

@@ -12,9 +12,45 @@ class Config
     private static $interactiveMode = false;
     private static $loadedVars = [];
     private static $defaultVars = [];
+    private static $section = null;
+    private static $sectionDisplayed = false;
+    private static $someSectionDisplayed = false;
+
+    public static function error(string $message): void
+    {
+        self::message(sprintf("Error: %s", $message));
+    }
+
+    public static function message(string $message): void
+    {
+        self::initialize(true);
+        self::flushSections();
+        fprintf(STDERR, "%s\n", $message);
+    }
+
+    public static function section(string $caption): void
+    {
+        self::initialize(true);
+        self::$section = $caption;
+        self::$sectionDisplayed = false;
+    }
+
+    private static function flushSections(): void
+    {
+        if (self::$section !== null && !self::$sectionDisplayed) {
+            $underline = str_repeat("-", mb_strlen(self::$section, "utf-8"));
+            fprintf(STDERR, "\n%s%s\n%s\n\n", self::$someSectionDisplayed ? "\n":"", self::$section, $underline);
+            self::$sectionDisplayed = true;
+            self::$someSectionDisplayed = true;
+        }
+    }
 
     public static function question(?string $variable, string $question, ?string $default = null, $type = null): ?string
     {
+        self::initialize(true);
+        if (!self::$configurationMode) {
+            throw new Exception("This function may be run only inside of the configure script");
+        }
         $type = ConfigType::create($type);
         $previousValue = null;
         if ($variable !== null) {
@@ -39,6 +75,7 @@ class Config
 
         do {
             if (self::$interactiveMode) {
+                self::flushSections();
                 fprintf(STDERR, "%s ", $question);
                 $value = rtrim(fgets(STDIN), "\r\n");
                 if ($value === '') {
@@ -51,14 +88,14 @@ class Config
                 $message = $type->check($value);
                 $valueOk = ($message === null) ? true : false;
                 if (!$valueOk) {
-                    fprintf(STDERR, "\nError: Invalid value: %s\n\n", $message);
+                    self::error(sprintf("Invalid value: %s", $message));
                 }
             } else {
                 $valueOk = $defaultOk;
                 if ($defaultOk) {
                     $value = $default;
                 } else {
-                    fprintf(STDERR, "\nError: Invalid value.\n\n");
+                    self::error("Invalid value.");
                 }
 
             }
@@ -86,10 +123,7 @@ class Config
 
     public static function set(string $var, ?string $value): void
     {
-        self::initialize();
-        if (!self::$configurationMode) {
-            throw new Exception("Setting configuration is possible only throught the configure command");
-        }
+        self::initialize(true);
         $putVar = $var;
         if (isset(self::$loadedVars[$var])) {
             unset(self::$loadedVars[$var]);
@@ -101,7 +135,7 @@ class Config
         self::write(($putVar !== null) ? [$putVar] : array_keys(self::$loadedVars), ($putVar !== null) ? false : true);
     }
 
-    private static function initialize(): void
+    private static function initialize(bool $wantConfigSection = false): void
     {
         if (self::$file !== null) {
             return;
@@ -128,6 +162,9 @@ class Config
         }
 
         self::$loadedVars = self::loadVars(self::$file);
+        if ($wantConfigSection && !self::$configurationMode) {
+            throw new Exception("This function may be run only inside of the configure script");
+        }
     }
 
     private static function write(array $vars, bool $overwrite): void

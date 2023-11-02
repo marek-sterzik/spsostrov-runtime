@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+use SPSOstrov\Runtime\Run;
+use Symfony\Component\Dotenv\Dotenv;
+
+require_once getenv("SPSO_APP_AUTOLOAD_PHP");
+
+if (Run::app("configure", "--if-not-configured") !== 0) {
+    fprintf(STDERR, "Error: cannot configure the environment, giving up\n");
+    exit(1);
+}
+
+(new Dotenv())->usePutenv(true)->overload(getenv("SPSO_APP_DIR") . "/.env");
+
+$dockerComposeVersion = getenv("SPSO_DOCKER_COMPOSE_VERSION");
+
+if ($dockerComposeVersion === "1") {
+    $cmd = ["docker-compose"];
+} elseif ($dockerComposeVersion === "2") {
+    $cmd = ["docker", "compose"];
+} else {
+    fprintf(STDERR, "Error: invalid configuration file, cannot determine docker compose version\n");
+    exit(1);
+}
+
+array_shift($argv);
+
+
+exit(Run::run(array_merge($cmd, $argv)));
+

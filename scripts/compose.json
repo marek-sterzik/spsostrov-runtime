@@ -1,0 +1,5 @@
+{
+    "description": "run docker-compose",
+    "help": "run docker-compose in the context of the application",
+    "hidden": true
+}
