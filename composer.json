@@ -13,5 +13,10 @@
     "require": {
         "spsostrov/app-console": "dev-master"
     },
+    "autoload" : {
+        "psr-4": {
+            "SPSOstrov\\Runtime\\": "src"
+        }
+    },
     "minimum-stability": "dev"
 }

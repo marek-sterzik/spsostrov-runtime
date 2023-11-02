@@ -1,6 +1,9 @@
 /vendor
 /composer.lock
 
+/.env
+/.env.tmp
+
 .swp
 .*.swp
 

@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+
+use SPSOstrov\Runtime\Configure;
+
+require_once getenv("SPSO_APP_AUTOLOAD_PHP");
+
+
+array_shift($argv);
+
+$ifNotConfigured = ($argv[0] ?? false) ? true : false;
+
+$app = new Configure(getenv("SPSO_APP_DIR"));
+
+if ($ifNotConfigured && $app->configured()) {
+    exit(0);
+}
+
+exit($app->run());
+
+$fd = fopen($configFileTmp, "c");
+if (!flock($fd, LOCK_EX | LOCK_NB)) {
+    fprintf(STDERR, "Error: Cannot acquire lock for the configuration file, configure already running?\n", CONFIG);
+    exit (1);
+}
+ftruncate($fd, 0);
+
+
+putenv("SPSO_CONFIG_FILE=" . $configFileTmp);
+fprintf(STDERR, "Error: configuring is not yet implemented\n");
+fclose($fd);
+unlink($configFileTmp);
+

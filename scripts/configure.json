@@ -1,0 +1,11 @@
+{
+    "description": "Configure the environment",
+    "help": "Configure the environment",
+    "options": [
+        "if-not-configured Configure only if it is not configured",
+        "$args~"
+    ],
+    "args": [
+        "$if-not-configured"
+    ]
+}
