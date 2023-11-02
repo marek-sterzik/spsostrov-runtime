@@ -10,7 +10,7 @@ if (Run::app("configure", "--if-not-configured") !== 0) {
     exit(1);
 }
 
-(new Dotenv())->usePutenv(true)->overload(getenv("SPSO_APP_DIR") . "/.env");
+(new Dotenv())->usePutenv(true)->bootEnv(getenv("SPSO_APP_DIR") . "/.env", "dev", ["test"], true);
 
 $dockerComposeVersion = getenv("SPSO_DOCKER_COMPOSE_VERSION");
 

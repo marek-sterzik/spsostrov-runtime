@@ -2,15 +2,18 @@
 
 namespace SPSOstrov\Runtime;
 
+use Exception;
+use Throwable;
+
 class Configure
 {
-    public const CONFIG = ".env";
+    public const CONFIG = ".env.local";
     public const CONFIG_TMP = ".env.tmp";
 
     /** @var string */
     private $appRoot;
 
-    /** @var string */
+    /** @var ConfigFile */
     private $configFile;
 
     /** @var string */
@@ -19,41 +22,37 @@ class Configure
     public function __construct(string $appRoot)
     {
         $this->appRoot = $appRoot;
-        $this->configFile = $appRoot . "/" . self::CONFIG;
-        $this->configFileTmp = $appRoot . "/" . self::CONFIG_TMP;
+        $this->configFile = new ConfigFile($appRoot);
     }
 
     public function configured(): bool
     {
-        return file_exists($this->configFile) ? true : false;
+        return $this->configFile->configured();
     }
 
     public function run(bool $interactive = true): int
     {
-        $fd = fopen($this->configFileTmp, "c");
-        if (!flock($fd, LOCK_EX | LOCK_NB)) {
-            fprintf(STDERR, "Error: Cannot acquire lock for the configuration file, configure already running?\n");
-            exit (1);
+        try {
+            $this->configFile->startTransaction(false);
+
+            putenv("SPSO_CONFIG_INTERACTIVE=" . ($interactive ? '1' : '0'));
+            putenv("SPSO_CONFIG_FILE=" . $this->configFile->getTmpFileName());
+            
+            $ret = Run::app("--all", "--reverse", "--abort-on-failure", ".configure");
+            if ($ret != 0) {
+                throw new Exception("");
+            }
+            $this->configFile->commit();
+            
+        } catch (Throwable $e) {
+            $this->configFile->rollback();
+            $message = $e->getMessage();
+            if ($message !== "") {
+                fprintf(STDERR, "Error: %s\n", $message);
+            }
+            return 1;
         }
-        ftruncate($fd, 0);
 
-        putenv("SPSO_CONFIG_INTERACTIVE=" . ($interactive ? '1' : '0'));
-        putenv("SPSO_CONFIG_FILE=" . $this->configFileTmp);
-        $success = false;
-        if ($this->runPlugins()) {
-            @unlink($this->configFile);
-            copy($this->configFileTmp, $this->configFile);
-            $success = true;
-        }
-        fclose($fd);
-        unlink($this->configFileTmp);
-
-        return $success ? 0 : 1;
-    }
-
-    private function runPlugins(): bool
-    {
-        $ret = Run::app("--all", "--reverse", "--abort-on-failure", ".configure");
-        return ($ret === 0) ? true : false;
+        return 0;
     }
 }
