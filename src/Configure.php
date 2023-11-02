@@ -53,7 +53,7 @@ class Configure
 
     private function runPlugins(): bool
     {
-        $ret = Run::app("--all", "--reverse", ".configure");
+        $ret = Run::app("--all", "--reverse", "--abort-on-failure", ".configure");
         return ($ret === 0) ? true : false;
     }
 }

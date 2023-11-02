@@ -3,11 +3,11 @@
     "help": "Configure the environment",
     "options": [
         "if-not-configured  Configure only if it is not configured",
-        "I|non-interactive  Run in non-interactive mode",
+        "I|no-interaction   Run in non-interactive mode",
         "$args~"
     ],
     "args": [
         "$if-not-configured",
-        "$non-interactive"
+        "$no-interaction"
     ]
 }
