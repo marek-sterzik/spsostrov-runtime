@@ -42,6 +42,10 @@ class Configure
             if ($ret != 0) {
                 throw new Exception("");
             }
+            $ret = Run::app("--all", "--reverse", "--abort-on-failure", ".configure-postprocess");
+            if ($ret != 0) {
+                throw new Exception("Postprocessing of the configuration failed");
+            }
             $this->configFile->commit();
             
         } catch (Throwable $e) {
