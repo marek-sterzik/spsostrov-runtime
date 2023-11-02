@@ -11,7 +11,8 @@
         }
     ],
     "require": {
-        "spsostrov/app-console": "dev-master"
+        "spsostrov/app-console": "dev-master",
+        "symfony/dotenv": ">=5.4"
     },
     "autoload" : {
         "psr-4": {
