@@ -13,6 +13,65 @@ class Config
     private static $loadedVars = [];
     private static $defaultVars = [];
 
+    public static function question(?string $variable, string $question, ?string $default = null, $type = null): ?string
+    {
+        $type = ConfigType::create($type);
+        $previousValue = null;
+        if ($variable !== null) {
+            $previousValue = self::get($variable);
+            if ($previousValue !== null) {
+                $default = $previousValue;
+            }
+        }
+
+        $defaultOk = ($type->check($default) === null) ? true : false;
+        if (!$defaultOk && $default !== null) {
+            $default = null;
+            $defaultOk = ($type->check($default) === null) ? true : false;
+        }
+        
+        if ($default !== null) {
+            $displayDefault = $type->transformDefaultToString($default);
+            $displayDefault = preg_replace('/[\[\]\\\\]/', '\\\\\1', $displayDefault);
+            $question = sprintf("%s [%s]", $question, $displayDefault);
+        }
+
+
+        do {
+            if (self::$interactiveMode) {
+                fprintf(STDERR, "%s ", $question);
+                $value = rtrim(fgets(STDIN), "\r\n");
+                if ($value === '') {
+                    $value = null;
+                }
+            } else {
+                $value = null;
+            }
+            if ($value !== null) {
+                $message = $type->check($value);
+                $valueOk = ($message === null) ? true : false;
+                if (!$valueOk) {
+                    fprintf(STDERR, "\nError: Invalid value: %s\n\n", $message);
+                }
+            } else {
+                $valueOk = $defaultOk;
+                if ($defaultOk) {
+                    $value = $default;
+                } else {
+                    fprintf(STDERR, "\nError: Invalid value.\n\n");
+                }
+
+            }
+            if (!$valueOk && !self::$interactiveMode) {
+                throw new Exception("Invalid default value in non-interactive mode");
+            }
+        } while (!$valueOk);
+        if ($variable !== null) {
+            self::set($variable, $value);
+        }
+        return $value;
+    }
+
     public static function getFile(): string
     {
         self::initialize();

@@ -5,9 +5,4 @@ use SPSOstrov\Runtime\Config;
 
 require_once getenv("SPSO_APP_AUTOLOAD_PHP");
 
-var_dump(Config::get("TEST"));
-Config::set("TEST", "test");
-Config::set("TEST2", "test2");
-var_dump(Config::get("TEST"));
-Config::set("TEST", "test3");
-var_dump(Config::get("TEST"));
+Config::question("SPSO_APP_PORT", "On which port should the application listen?", 80, "port");
