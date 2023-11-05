@@ -2,6 +2,7 @@
 
 namespace SPSOstrov\Runtime;
 
+use SPSOstrov\AppConsole\Path;
 use Symfony\Component\Dotenv\Dotenv;
 use Exception;
 
@@ -19,6 +20,11 @@ class Config
     public static function error(string $message): void
     {
         self::message(sprintf("Error: %s", $message));
+    }
+
+    public static function warning(string $message): void
+    {
+        self::message(sprintf("Warning: %s", $message));
     }
 
     public static function message(string $message): void
@@ -118,7 +124,7 @@ class Config
     public static function get(string $var, bool $useDefault = true): ?string
     {
         self::initialize();
-        return self::$loadedVars[$var] ?? self::$defaultVars[$var] ?? null;
+        return self::$loadedVars[$var] ?? ($useDefault ? (self::$defaultVars[$var] ?? null) : null);
     }
 
     public static function set(string $var, ?string $value): void
@@ -139,6 +145,82 @@ class Config
         }
         $append = ($putVar !== null) ? true : false;
         self::$file->writeTemp($vars, $append);
+    }
+
+    public static function getAsArray(string $var, bool $useDefault = true): ?array
+    {
+        $value = self::get($var, $useDefault);
+        if ($value === null) {
+            return null;
+        }
+        return ArrayString::toArray($value);
+    }
+
+    public static function setAsArray(string $var, ?array $value): void
+    {
+        if ($value !== null) {
+            $value = ArrayString::toString($value);
+        }
+        self::set($var, $value);
+    }
+
+    public static function enableModule(string $module): void
+    {
+        self::initialize(true);
+        $modules = self::getAsArray("SPSO_MODULES", false) ?? [];
+        if (!in_array($module, $modules)) {
+            $modules[] = $module;
+            self::setAsArray("SPSO_MODULES", $modules);
+        }
+    }
+
+    public static function disableModule(string $module): void
+    {
+        self::initialize(true);
+        $modules = self::getAsArray("SPSO_MODULES", false) ?? [];
+        $modules = array_filter($modules, function ($mod) use ($module) {
+            return $mod !== $module;
+        });
+        self::setAsArray("SPSO_MODULES", empty($modules) ? null : $modules);
+    }
+
+    public static function addComposeFile(string $packageRelativePath): void
+    {
+        self::initialize(true);
+        $path = self::makeFullPath($packageRelativePath);
+        $composeFiles = self::getAsArray("SPSO_EXTRA_COMPOSE_FILES", false) ?? [];
+        if (!in_array($path, $composeFiles)) {
+            $composeFiles[] = $path;
+            self::setAsArray("SPSO_EXTRA_COMPOSE_FILES", $composeFiles);
+        }
+    }
+
+    public static function removeComposeFile(string $packageRelativePath): void
+    {
+        self::initialize(true);
+        $path = self::makeFullPath($packageRelativePath);
+        $composeFiles = self::getAsArray("SPSO_EXTRA_COMPOSE_FILES", false) ?? [];
+        $composeFiles = array_filter($composeFiles, function ($file) use ($path) {
+            return $file !== $path;
+        });
+        self::setAsArray("SPSO_EXTRA_COMPOSE_FILES", empty($composeFiles) ? null : $composeFiles);
+    }
+
+    private static function makeFullPath(string $packageRelativeFilePath): string
+    {
+        $packageRelDir = getenv("SPSO_APP_PACKAGE_REL_DIR");
+        if (!is_string($packageRelDir)) {
+            throw new Exception("Cannot determine package relative path for the current package");
+        }
+        $path = Path::canonizeRelative($packageRelativeFilePath);
+        if ($path === null) {
+            throw new Exception(sprintf("Invalid file path: %s", $packageRelativeFilePath));
+        }
+        $path = Path::canonizeRelative($packageRelDir . "/" . $path);
+        if ($path === null) {
+            throw new Exception("Invalid file path");
+        }
+        return $path;
     }
 
     private static function initialize(bool $wantConfigSection = false, bool $refresh = false): void

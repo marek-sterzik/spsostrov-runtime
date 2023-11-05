@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 use SPSOstrov\Runtime\Run;
+use SPSOstrov\Runtime\ArrayString;
 use Symfony\Component\Dotenv\Dotenv;
 
 require_once getenv("SPSO_APP_AUTOLOAD_PHP");
@@ -9,8 +10,9 @@ if (Run::app("configure", "--if-not-configured") !== 0) {
     fprintf(STDERR, "Error: cannot configure the environment, giving up\n");
     exit(1);
 }
+$appDir = getenv("SPSO_APP_DIR");
 
-(new Dotenv())->usePutenv(true)->bootEnv(getenv("SPSO_APP_DIR") . "/.env", "dev", ["test"], true);
+(new Dotenv())->usePutenv(true)->bootEnv($appDir . "/.env", "dev", ["test"], true);
 
 $dockerComposeVersion = getenv("SPSO_DOCKER_COMPOSE_VERSION");
 
@@ -23,8 +25,25 @@ if ($dockerComposeVersion === "1") {
     exit(1);
 }
 
+$composeFiles = getenv('SPSO_EXTRA_COMPOSE_FILES');
+if (is_string($composeFiles)) {
+    $composeFiles = ArrayString::toArray($composeFiles);
+} else {
+    $composeFiles = [];
+}
+
+if (is_file($appDir . "/docker-compose.yml")) {
+    array_unshift($composeFiles, "docker-compose.yml");
+}
+
+foreach ($composeFiles as $composeFile) {
+    $cmd[] = '-f';
+    $cmd[] = $composeFile;
+}
+
 array_shift($argv);
 
+chdir($appDir);
 
 exit(Run::run(array_merge($cmd, $argv)));
 

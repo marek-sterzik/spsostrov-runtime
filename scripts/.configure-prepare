@@ -5,3 +5,4 @@ use SPSOstrov\Runtime\Config;
 
 require_once getenv("SPSO_APP_AUTOLOAD_PHP");
 
+Config::setAsArray("SPSO_MODULES", ["webserver", "mysql"]);

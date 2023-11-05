@@ -1,0 +1,14 @@
+version: '2.1'
+services:
+    database:
+        image: mysql:5.7.22
+        expose:
+            - 3306
+#        volumes:
+#            - .:/mnt
+#        working_dir: /mnt
+        environment:
+            MYSQL_ROOT_PASSWORD: rootpass
+            MYSQL_DATABASE: thedatabase
+            MYSQL_USER: user
+            MYSQL_PASSWORD: userpass

@@ -10,6 +10,7 @@ class ConfigFile
     private const CONFIG_MAIN_NAME = ".env";
     private const CONFIG_NAME = ".env.local";
     private const CONFIG_NAME_TMP = ".env.tmp";
+    private const NOT_COMMITED_VARS = ["SPSO_MODULES"];
 
     /** @var string */
     private $mainFileName;
@@ -143,11 +144,20 @@ class ConfigFile
             throw new Exception("No transaction started, cannot commit");
         }
         $data = $this->readTemp();
+        $data = $this->postProcessCommitedVars($data);
         $this->write($this->lockFd, $data, false);
         @unlink($this->tmpFileName);
         fclose($this->lockFd);
         $this->lockFd = null;
         @touch($this->mainFileName);
         return $this;
+    }
+
+    private function postProcessCommitedVars(array $vars): array
+    {
+        foreach (self::NOT_COMMITED_VARS as $var) {
+            unset ($vars[$var]);
+        }
+        return $vars;
     }
 }

@@ -38,9 +38,11 @@ class Configure
             putenv("SPSO_CONFIG_INTERACTIVE=" . ($interactive ? '1' : '0'));
             putenv("SPSO_CONFIG_FILE=" . $this->configFile->getTmpFileName());
             
+            Run::app("--all", "--reverse", ".configure-prepare");
+            
             $ret = Run::app("--all", "--reverse", "--abort-on-failure", ".configure");
             if ($ret != 0) {
-                throw new Exception("");
+                throw new Exception("Configuring of the application failed");
             }
             $ret = Run::app("--all", "--reverse", "--abort-on-failure", ".configure-postprocess");
             if ($ret != 0) {

@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+use SPSOstrov\Runtime\Config;
+
+require_once getenv("SPSO_APP_AUTOLOAD_PHP");
+
+$dir = dirname(__DIR__) . "/configure-postprocess-modules";
+
+$modules = ["global"];
+foreach (Config::getAsArray("SPSO_MODULES", false) ?? [] as $module) {
+    if (!in_array($module, $modules) && preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $module)) {
+        $modules[] = $module;
+    }
+}
+
+foreach ($modules as $module) {
+    $file = $dir . "/" . $module . ".php";
+    if (is_file($file)) {
+        include $file;
+    }
+}
