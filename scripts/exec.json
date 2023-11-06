@@ -1,0 +1,16 @@
+{
+    "description": "Exec command inside of a container or environment",
+    "help": "Exec command inside of a container or environment. Exec bash if no command is given",
+    "options": [
+        "$container?  Container or environment.",
+        "$command*    Command to be executed (bash if no command is given)",
+        "u|user:      Specify the user to run the command",
+        "t|terminal|T|no-terminal~{0,1}[terminal=@]  [t|terminal]Set interactive terminal mode [T|no-terminal]Set non-interactive pipe mode"
+    ],
+    "args": [
+        "$terminal?\"auto\"",
+        "$user",
+        "?container",
+        "*command"
+    ]
+}
