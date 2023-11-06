@@ -1,0 +1,32 @@
+#!/usr/bin/env php
+<?php
+
+use SPSOstrov\Runtime\Run;
+
+require_once getenv("SPSO_APP_AUTOLOAD_PHP");
+
+array_shift($argv);
+$container = array_shift($argv);
+$user = array_shift($argv);
+if ($user === '') {
+    $user = null;
+}
+$terminalMode = array_shift($argv);
+
+$cmd = ["compose", "exec"];
+if ($terminalMode === "auto" || $terminalMode === "no-terminal") {
+    if ($terminalMode !== 'no-terminal' && !posix_isatty(STDIN)) {
+        $cmd[] = "-T";
+    }
+}
+
+if ($user !== null) {
+    $cmd[] = '--user';
+    $cmd[] = $user;
+}
+
+$cmd[] = "--";
+
+$cmd[] = $container;
+
+exit(Run::app(array_merge($cmd, $argv)));

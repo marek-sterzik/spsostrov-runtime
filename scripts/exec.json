@@ -5,9 +5,11 @@
         "$container?  Container or environment.",
         "$command*    Command to be executed (bash if no command is given)",
         "u|user:      Specify the user to run the command",
+        "p|plugin:    Run using the specific exec plugin (console command .exec-<plugin>)",
         "t|terminal|T|no-terminal~{0,1}[terminal=@]  [t|terminal]Set interactive terminal mode [T|no-terminal]Set non-interactive pipe mode"
     ],
     "args": [
+        "$plugin",
         "$terminal?\"auto\"",
         "$user",
         "?container",
