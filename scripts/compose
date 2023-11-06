@@ -41,6 +41,15 @@ foreach ($composeFiles as $composeFile) {
     $cmd[] = $composeFile;
 }
 
+$projectName = getenv("SPSO_PROJECT_NAME");
+if (!is_string($projectName)) {
+    $projectName = basename($appDir);
+}
+
+$cmd[] = '-p';
+$cmd[] = $projectName;
+
+
 array_shift($argv);
 
 chdir($appDir);
