@@ -1,0 +1,9 @@
+{
+    "description": "Stop all containers",
+    "help": "Stop all containers",
+    "options": [
+    ],
+    "args": [
+        "$args~"
+    ]
+}

@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+<?php
+
+use SPSOstrov\Runtime\Run;
+
+require_once getenv("SPSO_APP_AUTOLOAD_PHP");
+
+
+array_shift($argv);
+
+exit(Run::app("compose", "down"));
