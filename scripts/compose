@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?php
-use SPSOstrov\Runtime\Run;
+use SPSOstrov\AppConsole\Run;
 use SPSOstrov\Runtime\ArrayString;
 use Symfony\Component\Dotenv\Dotenv;
 

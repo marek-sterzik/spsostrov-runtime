@@ -2,6 +2,7 @@
 
 namespace SPSOstrov\Runtime;
 
+use SPSOstrov\AppConsole\Run;
 use Exception;
 use Throwable;
 

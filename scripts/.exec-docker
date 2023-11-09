@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-use SPSOstrov\Runtime\Run;
+use SPSOstrov\AppConsole\Run;
 
 require_once getenv("SPSO_APP_AUTOLOAD_PHP");
 
