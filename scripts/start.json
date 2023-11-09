@@ -2,8 +2,8 @@
     "description": "Start all containers",
     "help": "Start all containers",
     "options": [
+        "$args~"
     ],
     "args": [
-        "$args~"
     ]
 }
