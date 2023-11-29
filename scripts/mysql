@@ -1,0 +1,56 @@
+#!/usr/bin/env php
+<?php
+
+use SPSOstrov\AppConsole\Run;
+use SPSOstrov\Runtime\Config;
+
+require_once getenv("SPSO_APP_AUTOLOAD_PHP");
+
+function checkDbUrl(array $dbUrl): ?array
+{
+    if (!isset($dbUrl['scheme']) || $dbUrl['scheme'] !== 'mysql') {
+        return null;
+    }
+    if (!isset($dbUrl['host'])) {
+        return null;
+    }
+
+    if (!isset($dbUrl['path'])) {
+        return null;
+    }
+    
+    if (!isset($dbUrl['user']) || !isset($dbUrl['pass']) || $dbUrl['pass'] === '') {
+        return null;
+    }
+    
+    $dbParams = [];
+    $dbParams['host'] = $dbUrl['host'];
+    $dbParams['port'] = $dbUrl['port'] ?? 3306;
+    $dbParams['database'] = ltrim($dbUrl['path'], '/');
+    $dbParams['username'] = $dbUrl['user'];
+    $dbParams['password'] = $dbUrl['pass'];
+    return $dbParams;
+}
+
+array_shift($argv);
+
+$dbUrl = Config::get("APP_DB_URL") ?? "";
+
+if ($dbUrl === "") {
+    fprintf(STDERR, "Error: unknown database url\n");
+    exit(1);
+}
+
+$dbUrl = parse_url($dbUrl);
+
+if (!is_array($dbUrl) || ($dbParams = checkDbUrl($dbUrl)) === null) {
+    fprintf(STDERR, "Error: invalid database url\n");
+    exit(1);
+}
+
+Run::appExec(
+     "exec", "database", "mysql",
+     "-h", $dbParams['host'], "-P", $dbParams['port'],
+     "-u", $dbParams['username'], "-p" . $dbParams['password'],
+     "--", $dbParams['database']
+);

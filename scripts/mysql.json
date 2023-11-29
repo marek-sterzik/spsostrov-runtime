@@ -1,0 +1,10 @@
+{
+    "description": "Run mysql console",
+    "help": "Run mysql console in the standard database",
+    "plugins": [
+        {
+            "plugin": "SPSOstrov\\Runtime\\Plugins\\ShowBasedOnVariable",
+            "args": ["APP_DB_URL"]
+        }
+    ]
+}
